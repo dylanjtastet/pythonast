@@ -10,7 +10,7 @@ public class Arguments implements Ast{
 	private Arg vararg;
 	private List<Arg> kwonlyargs;
 	private List<Expr> kw_defaults;
-	private Arg kward;
+	private Arg kwarg;
 	private List<Expr> defaults;
 	public List<Arg> getPosonlyargs() {
 		return posonlyargs;
@@ -43,10 +43,10 @@ public class Arguments implements Ast{
 		this.kw_defaults = kw_defaults;
 	}
 	public Arg getKward() {
-		return kward;
+		return kwarg;
 	}
 	public void setKward(Arg kward) {
-		this.kward = kward;
+		this.kwarg = kward;
 	}
 	public List<Expr> getDefaults() {
 		return defaults;

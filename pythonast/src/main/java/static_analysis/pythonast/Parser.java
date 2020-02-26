@@ -9,18 +9,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ast.*;
+import reference.PropFuture;
+import reference.RefFutureResolver;
+import reference.ParserReference;
 
 public abstract class Parser {
 	//Todo: Find classes that need to be mapped, work out special cases for enums, and
 	// Figure out what happens to members like small Alias (no type before parens)
 	public static Map<String, Class<?>> classMap = Map.ofEntries(
-				entry("boolop", SmallBoolOp.class),
-				entry("unaryop", SmallUnaryOp.class),
+				entry("Expr", ExprObj.class),
 				entry("alias", SmallAlias.class)
 			); 
 	public static Map<String, Enum<?>> eMap = Map.ofEntries(
@@ -65,56 +66,58 @@ public abstract class Parser {
 				entry("NotIn", CmpOp.NotIn)
 			);
 	
-	public static Ast parseAst(Object ast) {
-		Map<Long, Object> seen = new HashMap<Long, Object>();
-		return (Ast)parseAstHelper(ast, seen);
+	public static Ast parseAst(JSONObject ast) {
+		RefFutureResolver refResolver = new RefFutureResolver(); 
+		Ast tree = (Ast)parseAstHelper(ast.toMap(), refResolver);
+		refResolver.resolve();
+		return tree;
 	}
 	
-	public static Object parseAstHelper(Object prop, Map<Long, Object> seen) {
+	public static Object parseAstHelper(Object prop, RefFutureResolver refResolver) {
 		try {
-			if(prop instanceof JSONObject) {
-				Map<String, Object> map = ((JSONObject)prop).toMap();
+			if(prop instanceof Map) {
+				Map<String, Object> map = (Map<String, Object>)prop;
 				String nodeType = (String)map.get("ast2json_nodetype");
 				
 				if(nodeType.equals("ast2json_reference")) {
 					Long refId = (Long)map.get("ast2json_ref");
-					if(seen.containsKey(refId)) {
-						return seen.get(refId);
-					}
-					System.err.println("ast2json error: ref not found. Setting null subtree.");
-					return null;
+					return new ParserReference(refId);
 				}
 				
 				if(eMap.containsKey(nodeType)) {
-					return eMap.get(nodeType);
+					Enum<?> e = eMap.get(nodeType);
+					refResolver.addRef((Long)map.get("ast2json_id"), e);
+					return e;
 				}
-				//Cuts down on the number of types I need to re-map
-				String capitalClassName = nodeType.length() < 2? nodeType.toUpperCase() :
-					nodeType.substring(0,1).toUpperCase() + nodeType.substring(1);
 				
-				Class<?> clazz= java.lang.Class.forName("ast."+capitalClassName);
+				Class<?> clazz = null;
+				if(classMap.containsKey(nodeType)) {
+					clazz = classMap.get(nodeType);
+				}
+				else {
+					//Cuts down on the number of types I need to re-map
+					String capitalClassName = nodeType.length() < 2? nodeType.toUpperCase() :
+						nodeType.substring(0,1).toUpperCase() + nodeType.substring(1);
+					
+					clazz= java.lang.Class.forName("ast."+capitalClassName);
+				}
+			
 				Ast node = (Ast) clazz.getConstructors()[0].newInstance();
-				seen.put((Long)map.get("ast2json_id"), node);
+				refResolver.addRef((Long)map.get("ast2json_id"), node);
 				
 				for(String k : map.keySet()) {
 					if(!k.contains("ast2json")) { 
-						Field toSet = clazz.getField(k);
-						Object val = parseAstHelper(map.get(k), seen);
-						Class<?> fType = toSet.getType();
-						if(val == null || fType.isInstance(val)) {
-							toSet.set(node, val);
-						}
-						else {
-							System.err.println("Subtree type error. Skipping");
-						}
+						Field toSet = clazz.getDeclaredField(k);
+						Object val = parseAstHelper(map.get(k), refResolver);
+						putOrRef(node, toSet, val, refResolver);
 					}
 				}
 				return node;
 			}
-			else if(prop instanceof JSONArray) {
+			else if(prop instanceof Iterable) {
 				List<Object> lst = new ArrayList<Object>();
-				for(Object item : (JSONArray)prop) {
-					lst.add(parseAstHelper(item, seen));
+				for(Object item : (Iterable<Object>)prop) {
+					addOrRef(lst, parseAstHelper(item, refResolver), refResolver);
 				}
 				return lst;
 			}
@@ -145,6 +148,34 @@ public abstract class Parser {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static void addOrRef(List<Object> target, Object val, RefFutureResolver refResolver) {
+		if(val instanceof ParserReference) {
+			Long ref = ((ParserReference)val).getId();
+			refResolver.addListFuture(target, ref);
+		}
+		else {
+			target.add(val);
+		}
+	}
+	
+	public static void putOrRef(Object target, Field toSet, Object val, RefFutureResolver refResolver) throws IllegalArgumentException, IllegalAccessException {
+		if(val instanceof ParserReference) {
+			Long ref = ((ParserReference)val).getId();
+			refResolver.addPropFuture(toSet, target, ref);
+		}
+		else {
+			Class<?> fType = toSet.getType();
+			if(val == null || fType.isInstance(val)) {
+				toSet.setAccessible(true);
+				toSet.set(target, val);
+				toSet.setAccessible(false);
+			}
+			else {
+				System.err.println("Subtree type error. Skipping");
+			}
+		}
 	}
 	
 }
