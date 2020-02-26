@@ -5,7 +5,7 @@ public class Attribute implements Expr {
 	public Attribute() {}
 	private Expr value;
 	private String attr;
-	private Expr_context ctx;
+	private ExprContext ctx;
 	public Expr getValue() {
 		return value;
 	}
@@ -18,10 +18,10 @@ public class Attribute implements Expr {
 	public void setAttr(String attr) {
 		this.attr = attr;
 	}
-	public Expr_context getCtx() {
+	public ExprContext getCtx() {
 		return ctx;
 	}
-	public void setCtx(Expr_context ctx) {
+	public void setCtx(ExprContext ctx) {
 		this.ctx = ctx;
 	}
 }

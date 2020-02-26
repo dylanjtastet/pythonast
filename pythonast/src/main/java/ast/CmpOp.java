@@ -1,6 +1,6 @@
-package ast;
+ package ast;
 
-public enum Cmpop implements Ast{
+public enum CmpOp implements Ast{
 	Eq,
 	NotEq,
 	Lt,

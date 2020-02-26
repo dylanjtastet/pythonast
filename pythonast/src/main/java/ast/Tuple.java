@@ -6,17 +6,17 @@ public class Tuple implements Expr {
 
 	public Tuple() {}
 	private List<Expr> elts;
-	private Expr_context ctx;
+	private ExprContext ctx;
 	public List<Expr> getElts() {
 		return elts;
 	}
 	public void setElts(List<Expr> elts) {
 		this.elts = elts;
 	}
-	public Expr_context getCtx() {
+	public ExprContext getCtx() {
 		return ctx;
 	}
-	public void setCtx(Expr_context ctx) {
+	public void setCtx(ExprContext ctx) {
 		this.ctx = ctx;
 	}
 }

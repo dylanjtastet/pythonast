@@ -1,9 +1,10 @@
 package ast;
 
-public enum Expr_context implements Ast{
+public enum ExprContext implements Ast{
 	Load,
 	Store,
 	Del,
 	AugLoad,
+	AugStore,
 	Param
 }

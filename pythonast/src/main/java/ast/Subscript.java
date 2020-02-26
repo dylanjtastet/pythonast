@@ -5,7 +5,7 @@ public class Subscript implements Expr {
 	public Subscript() {}
 	private Expr value;
 	private Slice slice;
-	private Expr_context ctx;
+	private ExprContext ctx;
 	public Expr getValue() {
 		return value;
 	}
@@ -18,10 +18,10 @@ public class Subscript implements Expr {
 	public void setSlice(Slice slice) {
 		this.slice = slice;
 	}
-	public Expr_context getCtx() {
+	public ExprContext getCtx() {
 		return ctx;
 	}
-	public void setCtx(Expr_context ctx) {
+	public void setCtx(ExprContext ctx) {
 		this.ctx = ctx;
 	}
 }

@@ -4,17 +4,17 @@ public class Starred implements Expr {
 
 	public Starred() {}
 	private Expr value;
-	private Expr_context ctx;
+	private ExprContext ctx;
 	public Expr getValue() {
 		return value;
 	}
 	public void setValue(Expr value) {
 		this.value = value;
 	}
-	public Expr_context getCtx() {
+	public ExprContext getCtx() {
 		return ctx;
 	}
-	public void setCtx(Expr_context ctx) {
+	public void setCtx(ExprContext ctx) {
 		this.ctx = ctx;
 	}
 }

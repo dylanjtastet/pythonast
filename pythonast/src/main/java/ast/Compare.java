@@ -6,7 +6,7 @@ public class Compare implements Expr {
 
 	public Compare() {}
 	private Expr left;
-	private List<Cmpop> ops;
+	private List<CmpOp> ops;
 	private List<Expr> comparators;
 	public Expr getLeft() {
 		return left;
@@ -14,10 +14,10 @@ public class Compare implements Expr {
 	public void setLeft(Expr left) {
 		this.left = left;
 	}
-	public List<Cmpop> getOps() {
+	public List<CmpOp> getOps() {
 		return ops;
 	}
-	public void setOps(List<Cmpop> ops) {
+	public void setOps(List<CmpOp> ops) {
 		this.ops = ops;
 	}
 	public List<Expr> getComparators() {
