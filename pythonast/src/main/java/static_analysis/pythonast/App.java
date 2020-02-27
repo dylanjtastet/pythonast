@@ -16,7 +16,7 @@ public class App
     public static void main( String[] args )
     {
         try {
-        	File inFile = new File("C:\\Users\\lamem\\research\\py2json\\test2.json");
+        	File inFile = new File("./test_resources/test2.json");
         	String json = "";
         	Scanner scan = new Scanner(inFile);
         	while(scan.hasNextLine()) {
