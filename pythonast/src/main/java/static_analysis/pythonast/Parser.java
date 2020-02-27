@@ -22,7 +22,9 @@ public abstract class Parser {
 	// Figure out what happens to members like small Alias (no type before parens)
 	public static Map<String, Class<?>> classMap = Map.ofEntries(
 				entry("Expr", ExprObj.class),
-				entry("alias", SmallAlias.class)
+				entry("alias", SmallAlias.class),
+				entry("Slice", SliceImpl.class),
+				entry("List", PyList.class)
 			); 
 	public static Map<String, Enum<?>> eMap = Map.ofEntries(
 				//unaryop (ast.UnaryOp)

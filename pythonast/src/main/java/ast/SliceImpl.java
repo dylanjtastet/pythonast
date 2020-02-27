@@ -1,8 +1,8 @@
 package ast;
 
-public class Slicee implements Slice{
+public class SliceImpl implements Slice{
 
-	public Slicee() {}
+	public SliceImpl() {}
 	private Expr lower;
 	private Expr upper;
 	private Expr step;
